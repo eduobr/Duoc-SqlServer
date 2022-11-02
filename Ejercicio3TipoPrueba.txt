@@ -1,0 +1,32 @@
+SELECT * FROM employee e
+JOIN jobs j ON e.job_id = j.job_id
+JOIN publishers p ON p.pub_id = e.pub_id 
+WHERE j.max_lvl = 100 AND j.min_lvl = 25
+
+GO 
+ 
+CREATE PROCEDURE modificar_ciudad @max_lvl INT, @min_lvl INT
+AS
+BEGIN
+	DECLARE @empleado VARCHAR(255)
+	DECLARE cursor_empleado CURSOR SCROLL
+		FOR SELECT e.pub_id FROM employee e
+			JOIN jobs j ON e.job_id = j.job_id
+			JOIN publishers p ON p.pub_id = e.pub_id
+			WHERE j.max_lvl = @max_lvl AND j.min_lvl = @min_lvl
+		OPEN cursor_empleado
+			FETCH FIRST FROM cursor_empleado INTO @empleado
+			WHILE (@@FETCH_STATUS=0)
+			BEGIN
+				UPDATE publishers SET city=REPLACE(LOWER(city),'o','0') WHERE pub_id=@empleado
+				UPDATE publishers SET city=REPLACE(LOWER(city),'a','4') WHERE pub_id=@empleado
+				UPDATE publishers SET city=REPLACE(LOWER(city),'e','3') WHERE pub_id=@empleado
+				FETCH NEXT FROM cursor_empleado INTO @empleado
+			END
+		CLOSE CursorEmp
+		DEALLOCATE CursorEmp
+END
+
+EXEC modificar_ciudad 100,25
+
+DROP PROCEDURE modificar_ciudad

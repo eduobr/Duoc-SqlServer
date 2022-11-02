@@ -1,0 +1,24 @@
+SELECT * FROM jobs
+SELECT * FROM titles
+SELECT * FROM employee
+
+SELECT title AS 'titulo' FROM titles WHERE price> (SELECT price FROM titles WHERE title = 'Sushi, Anyone?' )
+
+SELECT CONCAT(CONCAT(CONCAT('Empleado:',CONCAT(CONCAT(fname,SPACE(1)),lname)),SPACE(1)),CONCAT('Credencial: ',emp_id)) FROM employee 
+JOIN jobs
+ON employee.job_id  = jobs.job_id
+WHERE job_desc = ANY 
+(SELECT job_desc FROM jobs JOIN employee ON jobs.job_id = employee.job_id 
+WHERE CONCAT(CONCAT(fname,SPACE(1)),lname) = 'Paul Henriot')
+
+SELECT CONCAT(CONCAT(CONCAT(SUBSTRING(fname,1,LEN(fname)-1),UPPER(SUBSTRING(fname,LEN(fname),1))),SPACE(1)),CONCAT(SUBSTRING(lname,1,LEN(lname)-1),UPPER(SUBSTRING(lname,LEN(lname),1)))) AS 'Empleados' FROM employee 
+JOIN titles
+ON employee.pub_id = titles.pub_id
+WHERE price = ANY(SELECT price from titles WHERE title = 'Life Without Fear')
+
+
+
+
+
+
+

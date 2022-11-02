@@ -1,0 +1,63 @@
+/*
+-- EJERCICIOS RECUPERACION DE DECIMAS --
+
+1- CREAR UN PROCEDIMIENTO QUE PERMITA OBTENER EL DESCUENTO QUE APLICA 
+UNA TIENDA, ENTREGANDO POR PARAMETRO EL NOMBRE DE LA TIENDA.
+PRINT: LA TIENDA XXXX APLICA DESCUENTO DE XXXX
+
+2- CREAR UNA VISTA QUE PERMITA RESCATAR SOLO LA INFORMACION DE LOS EMPLEADOS 
+DISEÑADORES Y EDITORES. LA VISTA NO SE PUEDE OBTENER INFORMACION ADICIONAL
+PRINT: EL EMPLEADO NOMBRE APELLIDO TRABAJA DE EDITOR
+
+3- CREAR UN PROCEDIMIENTO QUE PERMITA OBTENER LOS EMPLEADOS QUE TRABAJAN 
+EN CIERTO EDIFICIO. ENTREGAR POR PARAMETRO EL NOMBRE DEL OFICIO.
+PRINT: EL EMPLEADO NOMBRE APELLIDO TRABAJA DE EDITOR
+
+*/
+
+--1
+CREATE PROCEDURE obtener_descuento @tienda VARCHAR(255)
+AS
+DECLARE @cantidad int
+BEGIN
+	SET @cantidad =(SELECT ISNULL(discount,0)  FROM stores s
+	LEFT JOIN discounts d ON s.stor_id = d.stor_id WHERE s.stor_name=@tienda)
+
+	IF @cantidad=0
+		PRINT 'Tienda:'+@tienda+' tiene descuento de: 0'
+	ELSE
+		 PRINT 'Tienda:'+@tienda+' tiene descuento de: '+CONVERT(Varchar(255),@cantidad)
+END
+
+exec obtener_descuento 'Bookbeat'
+
+drop procedure obtener_descuento
+
+GO
+--3
+CREATE PROCEDURE obtener_empleado @oficio VARCHAR(255)
+AS
+DECLARE @nombre VARCHAR(255),@ofi Varchar(255)
+BEGIN
+	DECLARE CursorEmpleado Cursor Scroll
+	FOR
+	SELECT e.fname+' '+e.lname,j.job_desc FROM employee e
+	JOIN jobs j ON e.job_id = j.job_id WHERE j.job_desc=@oficio
+	OPEN CursorEmpleado
+		FETCH FIRST FROM CursorEmpleado into @nombre,@ofi
+		WHILE(@@FETCH_STATUS=0)
+		BEGIN
+			PRINT 'El empleado: '+@nombre+' Trabaja de: '+@ofi
+			FETCH NEXT FROM CursorEmpleado into @nombre,@ofi
+		END
+	CLOSE CursorEmpleado
+	DEALLOCATE CursorEmpleado
+END
+
+
+SELECT e.fname+' '+e.lname,j.job_desc FROM employee e
+	JOIN jobs j ON e.job_id = j.job_id 
+
+EXEC obtener_empleado 'Sales Representative'
+
+DROP procedure obtener_empleado

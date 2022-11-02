@@ -1,0 +1,82 @@
+--PROCEDIMIENTOS ALMACENADOS--
+CREATE PROCEDURE sp_ejemplo1
+AS
+BEGIN
+	PRINT 'EL BERNAL HOY NO RINDIO'	
+END
+
+EXEC sp_ejemplo1
+
+GO
+
+CREATE PROCEDURE sp_ejemplo2
+AS
+BEGIN
+	SELECT * FROM employee WHERE emp_id = 'PMA42628M';
+END
+
+/*CREATE PROCEDURE sp_ejemplo2
+SELECT * FROM employee WHERE emp_id = 'PMA4268M';*/
+
+EXEC sp_ejemplo2
+
+GO
+
+CREATE PROCEDURE sp_empleado @nombre VARCHAR(20), @apellido VARCHAR(20)
+AS
+BEGIN
+	SELECT * FROM employee WHERE fname = @nombre AND lname = @apellido;
+END
+
+EXEC sp_empleado 'Paolo','Accorti'
+
+GO
+
+CREATE PROC sp_bajar_venta @cantidad int, @libro VARCHAR(20)
+AS
+BEGIN
+	UPDATE sales SET qty = qty-@cantidad WHERE title_id=@libro;
+	PRINT 'SE DESCONTO '+CONVERT(VARCHAR(20),@cantidad)+' A LA VENTA';
+END
+
+EXEC sp_bajar_venta 5,'PS7777'
+
+DROP PROCEDURE sp_bajar_venta
+
+SELECT qty*0.5 FROM sales
+
+--Ejercicios
+--1)sp_aumentar_ventas:Aumentar la cantidad de venta de los libros en un 5%
+--	utilizando ciclo y cursor
+--2)sp_aumentar_venta: Se pasa por parametro el libro que aumenta la venta 
+--  y se entrega el porcentaje de aumento
+--3)sp_copiar_tabla: Se entrega por parametro el nombre de la tabla nueva y la tabla
+-- que se va a copiar
+--4)sp_ventas: Saber el nombre y apellido de los autores y las ventas por autor en cada 
+-- ciudad en donde se vendio 
+
+--DESARROLLO
+--1)
+CREATE PROC sp_aumentar_venta 
+UPDATE SET qty=qty*0.5 FROM sales
+
+
+CREATE VIEW CantidadLibros 
+AS SELECT * FROM sales
+
+SELECT * FROM CantidadLibros
+
+DECLARE CursorAumentarVentas CURSOR SCROLL
+ FOR SELECT * FROM employee
+OPEN CursorAumentarVentas
+WHILE(@@FETCH_STATUS=0)
+BEGIN
+	FETCH NEXT FROM CursorAumentarVentas
+	UPDATE sales SET qty=qty+(qty*0.05) FROM sales
+END
+CLOSE CursorAumentarVentas
+DEALLOCATE CursorAumentarVentas
+
+GO
+
+

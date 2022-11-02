@@ -1,0 +1,33 @@
+SELECT title,pub_name
+from titles
+JOIN publishers
+ON titles.pub_id = publishers.pub_id
+WHERE ASCII(pub_name)=65
+
+SELECT CONCAT(fname,CONCAT(lname,CONCAT(publishers.pub_id,pub_name)))
+FROM employee 
+JOIN publishers
+ON employee.pub_id = publishers.pub_id
+JOIN jobs 
+ON employee.job_id = jobs.job_id
+WHERE jobs.job_desc='Publisher' AND job_lvl > 200
+
+SELECT job_id,CONCAT(fname,CONCAT(SPACE(1),lname))
+FROM employee 
+JOIN publishers
+ON employee.pub_id = publishers.pub_id
+WHERE job_id=5 AND job_lvl > 200
+
+SELECT CONCAT(UPPER(LEFT(employee.fname,2)),CONCAT(SUBSTRING(employee.fname,3,10),
+		CONCAT(UPPER(RIGHT(employee.lname,2)),CONCAT(SUBSTRING(employee.lname,3,10),SPACE(1)))))
+FROM employee
+JOIN jobs
+ON employee.job_id = jobs.job_id
+WHERE jobs.job_desc = 'Editor'
+
+SELECT * FROM titleauthor
+SELECT * FROM titles
+SELECT * FROM authors
+SELECT * FROM publishers
+SELECT * FROM employee
+SELECT * FROM jobs

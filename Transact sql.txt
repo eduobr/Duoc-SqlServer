@@ -1,0 +1,84 @@
+--IF--
+--OPERADORES: OR,AND,>=,<=,!=.=
+DECLARE @NOMBRE VARCHAR(20)
+	SET @nombre = 'Francisco'
+	IF @nombre = 'Francisco'
+		PRINT 'El nombre es Francisco'
+	ELSE
+		PRINT 'El nombre no es Francisco'
+
+DECLARE @edad int
+	SET @edad = 18
+
+	IF @edad > 17 
+		PRINT 'El sujeto es mayor de edad'
+	ELSE
+		PRINT 'Es menor de edad'
+
+--CICLO: WHILE--
+DECLARE @contador int
+	SET @contador = 0
+	WHILE(@contador<=20)
+	BEGIN
+		PRINT 'Numero: '+CAST(@contador AS VARCHAR(20))	
+		--PRINT 'Numero: '+CONVERT(VARCHAR(20),@contador) OTRA FORMA DE CONVERTIR
+		SET @contador = @contador+1
+	END
+
+--SWITCH O CASE
+DECLARE @jugador VARCHAR(20)
+	SET @jugador = 'James'
+	SET @jugador =
+	CASE @jugador 
+		WHEN 'Adolfo' THEN 'Es bronce'
+		WHEN 'Bernal' THEN 'Es oro'
+		WHEN 'James' THEN 'Esta baneado'
+	END
+	PRINT @jugador
+
+--TRY CATCH--
+BEGIN TRY
+	DECLARE @numero int
+		SET @numero = 10
+		PRINT 'El numero es: '+CONVERT(VARCHAR(20),@numero)
+END TRY
+BEGIN CATCH
+	PRINT 'Error: Al leer el numero'
+	PRINT 'Error: '+error_message()
+END CATCH
+
+
+--EJERCICIO 1)
+--DECLARAR UNA VARIABLE PARA BUSCAR EL NOMBRE DEL LIBRO, BUSCANDO LA ID DEL LIBRO: PS3333
+--SE NECESITA CALIFICAR EL LIBRO 'Prolonged Data Deprivation: Four Case Studies'
+--SI TIENE ENTRE 5 VENTAS a 10 VENTAS, SE IMPRIME:LIBRO LOW LEVEL
+--SI TIENE ENTRE 10 VENTAS a 15 VENTAS, SE IMPRIME:LIBRO MID LEVEL
+--SI TIENE ENTRE 15 VENTAS a 100 VENTAS, SE IMPRIME:LIBRO HIGH LEVEL
+--Y EN CASO DE QUE SALGA UN ERROR CAPTURARLO CON EL TRY CATCH
+BEGIN TRY
+DECLARE @LIBRO VARCHAR(45), @VENTAS INT
+	SET @LIBRO = ( 
+	SELECT title FROM titles WHERE title_id = 'MC3026')
+	PRINT @LIBRO
+	SET @VENTAS =(
+	SELECT s.qty FROM titles t
+		JOIN sales s
+		on t.title_id = s.title_id
+		WHERE s.title_id = 'MC3026' AND t.title= @LIBRO)
+	PRINT @VENTAS
+	IF @VENTAS >= 5 AND @VENTAS <10
+		PRINT 'EL LIBRO: '+@LIBRO+' ,ES LOW LEVEL'
+	IF @VENTAS > 10 AND @VENTAS <=15
+		PRINT 'EL LIBRO: '+@LIBRO+' ,ES MID LEVEL'
+	IF @VENTAS > 15 AND @VENTAS <=150
+		PRINT 'EL LIBRO: '+@LIBRO+' ,ES HIGH LEVEL'
+END TRY
+BEGIN CATCH
+	PRINT 'Error: '+error_message()
+END CATCH
+
+
+	/*SET @CALIFICACION = 
+	CASE @VENTAS 
+		WHEN @VENTAS>=5 THEN 'LIBRO LOW LEVEL'
+	END*/

@@ -1,0 +1,127 @@
+/*
+	EJERCICIO TIPO PRUEBA
+
+	1-CREAR PROCEDIMIENTO QUE DUPLIQUE UNA TABLA
+	  ENTREGANDO POR PARAMETRO EL NOMBRE DE LA TABLA
+	  Y EL NOMBRE DE LA TABLA NUEVA.
+
+	2-CREAR UNA TABLA PARA HACER UN HISTORIAL DE LAS TIENDAS LLAMADA
+	  STORES_HISTORIAL QUE TENDRA LOS SIGUIENTES PARAMETROS: EL ID DE LA TIENDA
+	  EL NOMBRE DE LA TIENDA, LA FECHA DE LA EJECUCUIB Y DESCRIPCION DE LA EJECUCION
+	  POR EJ: SI SE INSERTA EN STORES, SE ALMACENARA EN LA TABLA HISTORIAL
+	  LA INFORMACIÓN:1-DUOC PUENTE ALTO - 2013-12-12 - 'SE INSERTO'
+
+	3-CREAR UN PROCEDIMIENTO QUE OBTENGA LA SIGUIENTE INFORMACIÓN: ENTREGANDO POR 
+	  PARAMETRO VAN A PASAR EL MIN_LVL Y EL MAX_LVL DEL EMPLEADO QUE SE NECESITA
+	  MOSTRAR Y VAN A OBTENER LA CIUDAD DE LA EDITORIAL EN LA QUE TRABAJA, REEMPLAZAR EN
+	  LA CIUDAD LAS LETRAS "O" POR CERO, LAS LETRAS "A" POR 4, LAS LETRAS "E" POR 3
+
+	  TRIGGER
+	  BEGIN
+		INSERT INTO  SELECT
+	  END
+*/
+
+/*
+TRIGGER
+BEGIN							   
+	INSERT INTO HISTORIAL(X,X,X,X) SELECT ID,NOMBRE,GETDATE(),'SAHDUISAHD' 
+	FROM INSERTED
+	//SE INSERTAN LOS DATOS SELECCIONADOS
+END
+¨*/
+
+SELECT * FROM SALES
+
+GO
+--1
+CREATE PROCEDURE CREAR_TABLA @tabla VARCHAR(100),@nueva_tabla VARCHAR(100)
+AS
+BEGIN
+	DECLARE @NTABLA VARCHAR(100)
+	--SET @NTABLA = 'CREATE TABLE '+@nueva_tabla+' AS SELECT * FROM '+@tabla
+	EXEC ('SELECT * INTO '+@nueva_tabla+' FROM '+@tabla)
+END
+
+EXEC CREAR_TABLA 'stores','storesduplicada'
+
+GO
+SELECT * FROM storesduplicada
+
+SELECT * FROM STORES
+
+GO
+--2
+
+CREATE TABLE stores_historial
+(stor_id varchar(50),
+stor_name char(255),
+Fecha datetime,
+Descripcion varchar(100));
+
+GO 
+
+CREATE TRIGGER tr_historial
+ON stores
+FOR UPDATE,INSERT,DELETE AS
+BEGIN
+	DECLARE @Action as char(1);
+    SET @Action = (CASE WHEN EXISTS(SELECT * FROM INSERTED)
+                         AND EXISTS(SELECT * FROM DELETED)
+                        THEN 'U'  -- Set Action to Updated.
+                        WHEN EXISTS(SELECT * FROM INSERTED)
+                        THEN 'I'  -- Set Action to Insert.
+                        WHEN EXISTS(SELECT * FROM DELETED)
+                        THEN 'D'  -- Set Action to Deleted.
+                        ELSE NULL -- Skip. It may have been a "failed delete".   
+                    END)
+	
+	IF @Action = 'U'
+		INSERT INTO stores_historial SELECT stor_id,stor_name,GETDATE(),'SE MODIFICO' FROM inserted
+	IF @Action = 'I'
+		INSERT stores_historial SELECT stor_id,stor_name,GETDATE(),'SE INSERTO' FROM inserted
+	IF @Action = 'D'
+		INSERT stores_historial SELECT stor_id,stor_name,GETDATE(),'SE ELIMINO' FROM deleted
+END
+
+UPDATE stores SET city = 'SeattleË' WHERE stor_id = 6380
+
+SELECT * FROM stores_historial
+
+DROP TRIGGER tr_historial
+
+GO
+---3
+
+SELECT * FROM employee e
+JOIN jobs j ON e.job_id = j.job_id
+JOIN publishers p ON p.pub_id = e.pub_id 
+WHERE j.max_lvl = 100 AND j.min_lvl = 25
+
+GO 
+ 
+CREATE PROCEDURE modificar_ciudad @max_lvl INT, @min_lvl INT
+AS
+BEGIN
+	DECLARE @empleado VARCHAR(255)
+	DECLARE cursor_empleado CURSOR SCROLL
+		FOR SELECT e.pub_id FROM employee e
+			JOIN jobs j ON e.job_id = j.job_id
+			JOIN publishers p ON p.pub_id = e.pub_id
+			WHERE j.max_lvl = @max_lvl AND j.min_lvl = @min_lvl
+		OPEN cursor_empleado
+			FETCH FIRST FROM cursor_empleado INTO @empleado
+			WHILE (@@FETCH_STATUS=0)
+			BEGIN
+				UPDATE publishers SET city=REPLACE(LOWER(city),'o','0') WHERE pub_id=@empleado
+				UPDATE publishers SET city=REPLACE(LOWER(city),'a','4') WHERE pub_id=@empleado
+				UPDATE publishers SET city=REPLACE(LOWER(city),'e','3') WHERE pub_id=@empleado
+				FETCH NEXT FROM cursor_empleado INTO @empleado
+			END
+		CLOSE CursorEmp
+		DEALLOCATE CursorEmp
+END
+
+EXEC modificar_ciudad 100,25
+
+DROP PROCEDURE modificar_ciudad

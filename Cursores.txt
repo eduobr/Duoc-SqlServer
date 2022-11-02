@@ -1,0 +1,120 @@
+--Cursores--
+
+DECLARE CursorUno CURSOR
+	FOR SELECT * FROM employee
+
+OPEN CursorUno
+	FETCH NEXT FROM CursorUno
+
+CLOSE CursorUno			--Cerrar instruccion
+DEALLOCATE CursorUno	--Cerrar espacio en la memoria
+
+-------------------------------------------------------
+DECLARE CursorDos CURSOR SCROLL --SCROLL nos permite movernos entre los datos
+	FOR SELECT * FROM employee
+
+OPEN CursorDos
+	FETCH NEXT FROM CursorDos --Avanza una linea 
+	FETCH PRIOR FROM CursorDos --Se devuelve una linea
+	FETCH LAST FROM CursorDos --Muestra el ultimo dato
+	FETCH FIRST FROM CursorDos --Muestra el primer DATO
+
+CLOSE CursorDos
+DEALLOCATE CursorDos 
+
+-----------------------------------------------------------------
+
+DECLARE @nombre VARCHAR(25),@apellido VARCHAR(25)
+DECLARE CursorEmpleados CURSOR SCROLL
+	FOR SELECT fname,lname FROM employee
+OPEN CursorEmpleados
+WHILE(@@FETCH_STATUS=0)--SI ESTA EN 0 PUEDE CONTINUAR, SI ENCUENTRA INFORMACIÓN EN EL CURSOR
+	BEGIN 
+		PRINT 'Nombre: '+@nombre+' Apellido: '+@apellido
+		FETCH NEXT FROM CursorEmpleados INTO @nombre, @apellido
+	END
+
+CLOSE CursorEmpleados
+DEALLOCATE CursorEmpleados
+
+--UTILIZAR TODOS LOS DATOS EN VARIABLES PARA MOSTRAR
+--CURSOR QUE OBTENGA DESDE EL ULTIMO EMPLEADO(FORMATO TABLA)
+--CURSOR QUE OBTENGA SOLO EL ULTIMO EMPLEADO
+--ej:El ultimo empleado es: AAAAAAAAA
+
+--CURSOR QUE OBTENGA SOLO EL PRIMER EMPLEADO
+--ej:El ultimo empleado es: AAAAAAAAA
+
+--CURSOR QUE OBTENGA LA CANTIDAD DE AUTORES QUE PUBLICARON EN UNA LIBRERIA
+--EJ:la cantidad de autores que publicaron en NOMBRE LIBRERIA es 23.
+
+--CURSOR QUE OBTENGA NOMBRE Y APELLIDOS DE LOS AUTORES, TITULO DEL LIBRO Y DONDE SE PUBLICARON
+--ej: ARIEL BER
+
+DECLARE @nom VARCHAR(25), @ape VARCHAR(25)
+DECLARE CursorEmp CURSOR SCROLL
+	FOR SELECT fname,lname FROM employee
+OPEN CursorEmp
+	FETCH LAST FROM CursorEmp INTO @nom,@ape
+	PRINT 'El empleado es '+@nom+' '+@ape
+CLOSE CursorEmp
+DEALLOCATE CursorEmp
+
+
+DECLARE @nom VARCHAR(25), @ape VARCHAR(25)
+DECLARE CursorEmp CURSOR SCROLL
+	FOR SELECT fname,lname FROM employee
+OPEN CursorEmp
+	FETCH FIRST FROM CursorEmp INTO @nom,@ape
+	PRINT 'El empleado es '+@nom+' '+@ape
+CLOSE CursorEmp
+DEALLOCATE CursorEmp
+
+DECLARE @nom VARCHAR(25), @ape VARCHAR(25)
+DECLARE CursorEmp CURSOR SCROLL
+	FOR SELECT fname,lname FROM employee
+OPEN CursorEmp
+	FETCH FIRST FROM CursorEmp INTO @nom,@ape
+	PRINT 'El empleado es '+@nom+' '+@ape
+CLOSE CursorEmp
+DEALLOCATE CursorEmp
+
+DECLARE CursorEmp CURSOR SCROLL
+	FOR SELECT * FROM employee
+OPEN CursorEmp
+	FETCH FIRST FROM CursorEmp 
+	WHILE(@@FETCH_STATUS=0)
+	BEGIN 
+		FETCH NEXT FROM CursorEmp
+	END
+CLOSE CursorEmp
+DEALLOCATE CursorEmp
+
+SELECT p.pub_name,COUNT(a.au_id) FROM publishers p
+JOIN titles t
+ON p.pub_id = t.pub_id
+JOIN titleauthor ta
+ON t.title_id = ta.title_id
+JOIN authors a
+ON ta.au_id = a.au_id
+GROUP BY p.pub_name
+
+DECLARE @nomLibreria VARCHAR(40),@cantEmp INT
+DECLARE CursorLibreria CURSOR SCROLL
+ FOR SELECT p.pub_name,COUNT(a.au_id) FROM publishers p
+		JOIN titles t
+		ON p.pub_id = t.pub_id
+		JOIN titleauthor ta
+		ON t.title_id = ta.title_id
+		JOIN authors a
+		ON ta.au_id = a.au_id
+		GROUP BY p.pub_name
+OPEN CursorLibreria
+	WHILE(@@FETCH_STATUS=0)
+	BEGIN
+		PRINT @nomLibreria+' '+@cantEmp
+		FETCH NEXT FROM CursorLibreria INTO @nomLibreria,@cantEmp
+		
+	END
+
+

@@ -1,0 +1,22 @@
+CREATE VIEW AutoresPaloAlto
+AS SELECT CONCAT(CONCAT(au_fname,SPACE(1)),au_lname) AS 'nombre',city AS 'ciudad'  FROM authors  
+WHERE city='Palo Alto'
+
+SELECT * FROM AutoresPaloAlto
+
+ALTER VIEW AutoresPaloAlto(nombre,ciudad)
+AS SELECT CONCAT(CONCAT(au_fname,SPACE(1)),au_lname) AS nombre ,city AS ciudad  FROM authors  
+WHERE city='Palo Alto'
+
+SELECT nombre FROM AutoresPaloAlto
+
+CREATE VIEW AutoresLibros
+AS SELECT CONCAT(CONCAT(CONCAT(CONCAT(COUNT(authors.au_id),SPACE(1)),'Autores '),CONCAT('crearon el libro',SPACE(1))),title) AS "LIBROS" FROM titles
+	JOIN titleauthor ON titles.title_id = titleauthor.title_id
+	JOIN authors ON authors.au_id = titleauthor.au_id
+	GROUP BY title
+	HAVING COUNT(authors.au_id)>1
+
+SELECT * FROM AutoresLibros ORDER BY LIBROS DESC
+
+DROP VIEW AutoresLibros

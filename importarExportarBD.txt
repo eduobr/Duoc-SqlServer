@@ -1,0 +1,17 @@
+/*
+Ejercicio 1)
+	Exportar la tablas de empleados y jobs que trabajan
+	en la libreria con id 0877 al excel llamado 
+	empleados2018
+Ejercicio 2)
+	Importar en una nueva base de datos llamada
+	empleadoDuoc todos los datos del excel empleados2018
+*/
+
+--1
+SELECT e.*,j.job_id "TRABAJOID",j.job_desc,j.min_lvl,j.max_lvl from employee e 
+JOIN jobs j ON e.job_id = j.job_id
+WHERE pub_id = '0877'
+
+--2
+Select * from empleadosDuoc.dbo.Query$
